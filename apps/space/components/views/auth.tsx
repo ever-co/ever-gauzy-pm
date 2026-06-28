@@ -16,6 +16,20 @@ export function AuthView() {
       <AuthHeader />
       <AuthRoot />
       <PoweredBy />
+      {/* ever-gauzy fork: AGPL-3.0 attribution to our public Plane fork */}
+      <div className="flex items-center justify-center pb-2">
+        <span className="text-xs text-tertiary">
+          A public Plane fork —{" "}
+          <a
+            href="https://github.com/ever-co/ever-gauzy-plane"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium underline hover:cursor-pointer"
+          >
+            github.com/ever-co/ever-gauzy-plane
+          </a>
+        </span>
+      </div>
     </div>
   );
 }

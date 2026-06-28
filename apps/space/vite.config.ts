@@ -28,6 +28,9 @@ export default defineConfig(() => ({
   plugins: [reactRouter(), tsconfigPaths({ projects: [path.resolve(__dirname, "tsconfig.json")] })],
   resolve: {
     alias: {
+      // ever-gauzy fork: resolve @plane/i18n to source so Vite bundles the locale
+      // JSON chunks (the tsdown dist omits src/locales, leaving raw i18n keys).
+      "@plane/i18n": path.resolve(__dirname, "../../packages/i18n/src/index.ts"),
       // Next.js compatibility shims used within space
       "next/navigation": path.resolve(__dirname, "app/compat/next/navigation.ts"),
     },
