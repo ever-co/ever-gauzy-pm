@@ -5,7 +5,7 @@
  */
 
 import type { ReactNode } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -15,6 +15,8 @@ import { applyCustomTheme, clearCustomTheme } from "@plane/utils";
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useRouterParams } from "@/hooks/store/use-router-params";
 import { useUserProfile } from "@/hooks/store/user";
+// services
+import { AuthService } from "@/services/auth.service";
 
 type TStoreWrapper = {
   children: ReactNode;
@@ -22,6 +24,12 @@ type TStoreWrapper = {
 
 function StoreWrapper(props: TStoreWrapper) {
   const { children } = props;
+  // ever-gauzy fork: detect a one-click SSO handoff (?sso=<gauzy token>) on first
+  // mount, before any auth gating renders. Lazy init runs synchronously so children
+  // (incl. the auth redirect) are blocked until the exchange + reload completes.
+  const [ssoProcessing] = useState(
+    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).has("sso")
+  );
   // theme
   const { setTheme } = useTheme();
   // router
@@ -107,6 +115,27 @@ function StoreWrapper(props: TStoreWrapper) {
     if (!params) return;
     setQuery(params);
   }, [params, setQuery]);
+
+  // ever-gauzy fork: SSO bridge — exchange ?sso=<gauzy token> for a Plane session
+  // cookie, then reload to the cleaned URL so the new session is used. On invalid/
+  // expired token we still reload (to the normal login page) as a graceful fallback.
+  useEffect(() => {
+    if (!ssoProcessing || typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    const ssoToken = url.searchParams.get("sso");
+    url.searchParams.delete("sso");
+    (async () => {
+      try {
+        if (ssoToken) await new AuthService().exchangeSso(ssoToken);
+      } catch {
+        // ignore — fall through to manual login
+      } finally {
+        window.location.replace(url.toString());
+      }
+    })();
+  }, [ssoProcessing]);
+
+  if (ssoProcessing) return null;
 
   return <>{children}</>;
 }
