@@ -1,3 +1,31 @@
+# Ever Gauzy PM
+
+Ever Gauzy PM is a public fork of [Plane](https://github.com/makeplane/plane), modified and operated by Ever Co.
+
+This repository contains the corresponding source code for the modified Plane UI deployed as part of the Ever Gauzy platform at <https://pm.gauzy.co> and <https://pm-space.gauzy.co>.
+
+Please see also repo <https://github.com/ever-co/ever-gauzy-plugins-plane>, a proxy for integration between Ever Gauzy and Plane platforms.
+
+## Upstream
+
+Original project: https://github.com/makeplane/plane
+
+Plane is licensed under the GNU Affero General Public License v3.0.
+
+## License
+
+This fork remains licensed under the GNU Affero General Public License v3.0.
+
+See `LICENSE.txt` for the full license text.
+
+## Modifications
+
+This fork includes changes made by Ever Co, including integration with the Ever Gauzy platform and proxy services.
+
+## No affiliation
+
+Ever Gauzy PM is not affiliated with, sponsored by, or endorsed by [Plane](https://plane.so).
+
 <br /><br />
 
 <p align="center">
