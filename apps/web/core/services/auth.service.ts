@@ -59,6 +59,16 @@ export class AuthService extends APIService {
       });
   }
 
+  // ever-gauzy fork: SSO bridge — exchange a Gauzy access token for a Plane
+  // session cookie (the proxy verifies it and sets auth-proxy-plane-token).
+  async exchangeSso(token: string): Promise<any> {
+    return this.post("/auth/sso-exchange/", { token }, { headers: {} })
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  }
+
   async signOut(baseUrl: string): Promise<any> {
     await this.requestCSRFToken().then((data) => {
       const csrfToken = data?.csrf_token;

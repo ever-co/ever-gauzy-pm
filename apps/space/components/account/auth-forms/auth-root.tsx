@@ -36,7 +36,8 @@ export const AuthRoot = observer(function AuthRoot() {
   const error_code = searchParams.get("error_code") || undefined;
   const nextPath = searchParams.get("next_path") || undefined;
   // states
-  const [authMode, setAuthMode] = useState<EAuthModes>(EAuthModes.SIGN_UP);
+  // ever-gauzy fork: default to SIGN_IN; signup is disabled (accounts are created in Gauzy).
+  const [authMode, setAuthMode] = useState<EAuthModes>(EAuthModes.SIGN_IN);
   const [authStep, setAuthStep] = useState<EAuthSteps>(EAuthSteps.EMAIL);
   const [email, setEmail] = useState(emailParam ? emailParam.toString() : "");
   const [errorInfo, setErrorInfo] = useState<TAuthErrorInfo | undefined>(undefined);
@@ -98,9 +99,13 @@ export const AuthRoot = observer(function AuthRoot() {
         if (response.existing) {
           currentAuthMode = EAuthModes.SIGN_IN;
           setAuthMode(() => EAuthModes.SIGN_IN);
-        } else {
+        } else if (config?.enable_signup) {
           currentAuthMode = EAuthModes.SIGN_UP;
           setAuthMode(() => EAuthModes.SIGN_UP);
+        } else {
+          // ever-gauzy fork: signup disabled — stay in sign-in (accounts come from Gauzy).
+          currentAuthMode = EAuthModes.SIGN_IN;
+          setAuthMode(() => EAuthModes.SIGN_IN);
         }
 
         if (currentAuthMode === EAuthModes.SIGN_IN) {

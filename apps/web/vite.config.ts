@@ -24,6 +24,11 @@ export default defineConfig(() => ({
   plugins: [reactRouter(), tsconfigPaths({ projects: [path.resolve(__dirname, "tsconfig.json")] })],
   resolve: {
     alias: {
+      // ever-gauzy fork: resolve @plane/i18n to source so Vite bundles the locale
+      // JSON chunks. The published tsdown dist does not ship src/locales, so the
+      // dist's dynamic import("../locales/..") cannot resolve and the UI renders raw
+      // i18n keys (e.g. "auth.common.email.label"). Aliasing to src fixes it.
+      "@plane/i18n": path.resolve(__dirname, "../../packages/i18n/src/index.ts"),
       // Next.js compatibility shims used within web
       "next/link": path.resolve(__dirname, "app/compat/next/link.tsx"),
       "next/navigation": path.resolve(__dirname, "app/compat/next/navigation.ts"),

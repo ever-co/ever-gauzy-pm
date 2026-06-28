@@ -5,41 +5,52 @@
  */
 
 import React from "react";
-import { AccentureLogo, DolbyLogo, SonyLogo, ZerodhaLogo } from "@plane/propel/icons";
 
-const BRAND_LOGOS: {
-  id: string;
-  icon: React.ReactNode;
-}[] = [
-  {
-    id: "zerodha",
-    icon: <ZerodhaLogo className="h-7 w-24 text-[#387ED1]" />,
-  },
-  {
-    id: "sony",
-    icon: <SonyLogo className="h-7 w-16 dark:text-on-color" />,
-  },
-  {
-    id: "dolby",
-    icon: <DolbyLogo className="h-7 w-16 dark:text-on-color" />,
-  },
-  {
-    id: "accenture",
-    icon: <AccentureLogo className="h-7 w-24 dark:text-on-color" />,
-  },
-];
-
+// ever-gauzy fork: the upstream marketing footer ("Join 10,000+ teams building
+// with Plane" + brand logos) is intentionally removed. Per AGPL-3.0 we surface
+// the corresponding-source notice and a link to our public fork instead.
 export function AuthFooter() {
   return (
-    <div className="flex flex-col items-center gap-6">
-      <span className="text-13 whitespace-nowrap text-tertiary">Join 10,000+ teams building with Plane</span>
-      <div className="flex w-full flex-wrap items-center justify-center gap-x-10 gap-y-4">
-        {BRAND_LOGOS.map((brand) => (
-          <div className="flex h-7 flex-1 items-center justify-center" key={brand.id}>
-            {brand.icon}
-          </div>
-        ))}
-      </div>
+    <div className="mx-auto flex max-w-md flex-col items-center gap-2 text-center">
+      <p className="text-[11px] leading-relaxed text-tertiary">
+        <a
+          href="https://pm.gauzy.co"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:cursor-pointer"
+        >
+          Ever Gauzy PM
+        </a>{" "}
+        is a public fork of{" "}
+        <a
+          href="https://github.com/makeplane/plane"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:cursor-pointer"
+        >
+          Plane
+        </a>
+        , modified and operated by Ever Co. This service includes software licensed under the GNU AGPL v3.0. You can
+        access the corresponding fork source code{" "}
+        <a
+          href="https://github.com/ever-co/ever-gauzy-pm"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:cursor-pointer"
+        >
+          here
+        </a>
+        . Ever Gauzy PM is not affiliated with, sponsored by, or endorsed by{" "}
+        <a
+          href="https://plane.so"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:cursor-pointer"
+        >
+          Plane
+        </a>
+        .
+      </p>
     </div>
   );
 }
