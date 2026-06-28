@@ -33,7 +33,7 @@ export function AuthFooter() {
         , modified and operated by Ever Co. This service includes software licensed under the GNU AGPL v3.0. You can
         access the corresponding fork source code{" "}
         <a
-          href="https://github.com/ever-co/ever-gauzy-plane"
+          href="https://github.com/ever-co/ever-gauzy-pm"
           target="_blank"
           rel="noopener noreferrer"
           className="underline hover:cursor-pointer"
