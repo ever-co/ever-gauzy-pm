@@ -1,0 +1,79 @@
+name: k8s-build
+
+# Builds the Ever-customized Plane front-ends (pm.gauzy.co / pm-space.gauzy.co) and
+# pushes them to GHCR for ArgoCD (ever-co/k8s-gitops app `gauzy-pm-prod`) to deploy.
+#
+# NOTE (branch mapping): this fork tracks upstream makeplane/plane on `preview`
+# (default branch, carries all Ever customizations) — so `preview` is the deploy
+# branch and maps to the `:prod` tag. Backend = the Gauzy-integrated proxy
+# (ever-co/ever-gauzy-plugins-plane) at https://api.gauzy.co/api/plane, baked in
+# at BUILD time (Vite has no runtime env injection) — MODE=shared (tenant from
+# the logged-in session), TOPOLOGY=subdomains (space on pm-space.gauzy.co).
+
+on:
+  push:
+    branches: [preview]
+  workflow_dispatch: {}
+
+concurrency:
+  group: k8s-build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ${{ vars.RUNNER_LINUX_X64_8 || vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: plane-web
+            dockerfile: apps/web/Dockerfile.web
+            build_args: |
+              VITE_API_BASE_URL=https://api.gauzy.co/api/plane
+              VITE_ADMIN_BASE_URL=
+              VITE_ADMIN_BASE_PATH=/god-mode
+              VITE_SPACE_BASE_URL=https://pm-space.gauzy.co
+              VITE_SPACE_BASE_PATH=/spaces
+              VITE_LIVE_BASE_URL=
+              VITE_LIVE_BASE_PATH=/live
+          - image: plane-space
+            dockerfile: apps/space/Dockerfile.space
+            build_args: |
+              VITE_API_BASE_URL=https://api.gauzy.co/api/plane
+              VITE_SPACE_BASE_PATH=/spaces
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: env tag
+        id: t
+        run: |
+          case "${GITHUB_REF_NAME}" in
+            develop) echo "tag=dev"  >> "$GITHUB_OUTPUT" ;;
+            stage)   echo "tag=stage">> "$GITHUB_OUTPUT" ;;
+            preview|main|master) echo "tag=prod" >> "$GITHUB_OUTPUT" ;;
+            *) echo "tag=${GITHUB_REF_NAME//\//-}" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ steps.t.outputs.tag }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:sha-${{ github.sha }}
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache,mode=max
+          build-args: ${{ matrix.build_args }}
