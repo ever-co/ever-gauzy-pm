@@ -7,8 +7,16 @@ name: k8s-build
 # (default branch, carries all Ever customizations) — so `preview` is the deploy
 # branch and maps to the `:prod` tag. Backend = the Gauzy-integrated proxy
 # (ever-co/ever-gauzy-plugins-plane) at https://api.gauzy.co/api/plane, baked in
-# at BUILD time (Vite has no runtime env injection) — MODE=shared (tenant from
-# the logged-in session), TOPOLOGY=subdomains (space on pm-space.gauzy.co).
+# at BUILD time (Vite has no runtime env injection). TOPOLOGY=subdomains (space
+# on pm-space.gauzy.co).
+#
+# MODE=custom (tenant UUID in the path): pre-auth bootstrap routes (auth/email-check,
+# login) need the tenant's API key pair, which the proxy resolves from the DB via the
+# path tenant. In shared mode (no tenant in path) getDefaultProxyConfig() has empty
+# keys -> email-check 401s -> every login degrades to MAGIC_CODE (the historic
+# pm.gauzy.co login bug). The UUID is routing input, not a credential (see
+# ever-gauzy-plugins-plane docs/shared-multi-tenant-plane-sso.md); the session JWT
+# stays authoritative for tenant after login.
 
 on:
   push:
@@ -33,7 +41,7 @@ jobs:
           - image: plane-web
             dockerfile: apps/web/Dockerfile.web
             build_args: |
-              VITE_API_BASE_URL=https://api.gauzy.co/api/plane
+              VITE_API_BASE_URL=https://api.gauzy.co/api/plane/b545069e-48c8-44a2-bcb4-5699fd2013be
               VITE_ADMIN_BASE_URL=
               VITE_ADMIN_BASE_PATH=/god-mode
               VITE_SPACE_BASE_URL=https://pm-space.gauzy.co
@@ -43,7 +51,7 @@ jobs:
           - image: plane-space
             dockerfile: apps/space/Dockerfile.space
             build_args: |
-              VITE_API_BASE_URL=https://api.gauzy.co/api/plane
+              VITE_API_BASE_URL=https://api.gauzy.co/api/plane/b545069e-48c8-44a2-bcb4-5699fd2013be
               VITE_SPACE_BASE_PATH=/spaces
     steps:
       - uses: actions/checkout@v4
