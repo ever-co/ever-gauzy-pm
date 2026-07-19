@@ -27,29 +27,29 @@ type TAuthHeader = {
 const Titles = {
   [EAuthModes.SIGN_IN]: {
     [EAuthSteps.EMAIL]: {
-      header: "Work in all dimensions.",
-      subHeader: "Welcome back to Ever Gauzy PM.",
+      header: "Ever Gauzy PM",
+      subHeader: "Welcome back",
     },
     [EAuthSteps.PASSWORD]: {
-      header: "Work in all dimensions.",
-      subHeader: "Welcome back to Ever Gauzy PM.",
+      header: "Ever Gauzy PM",
+      subHeader: "Welcome back",
     },
     [EAuthSteps.UNIQUE_CODE]: {
-      header: "Work in all dimensions.",
-      subHeader: "Welcome back to Ever Gauzy PM.",
+      header: "Ever Gauzy PM",
+      subHeader: "Welcome back",
     },
   },
   [EAuthModes.SIGN_UP]: {
     [EAuthSteps.EMAIL]: {
-      header: "Work in all dimensions.",
+      header: "Ever Gauzy PM",
       subHeader: "Create your Ever Gauzy PM account.",
     },
     [EAuthSteps.PASSWORD]: {
-      header: "Work in all dimensions.",
+      header: "Ever Gauzy PM",
       subHeader: "Create your Ever Gauzy PM account.",
     },
     [EAuthSteps.UNIQUE_CODE]: {
-      header: "Work in all dimensions.",
+      header: "Ever Gauzy PM",
       subHeader: "Create your Ever Gauzy PM account.",
     },
   },
