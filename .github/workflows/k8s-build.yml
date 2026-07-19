@@ -1,22 +1,24 @@
 name: k8s-build
 
-# Builds the Ever-customized Plane front-ends (pm.gauzy.co / pm-space.gauzy.co) and
-# pushes them to GHCR for ArgoCD (ever-co/k8s-gitops app `gauzy-pm-prod`) to deploy.
+# Builds the Ever-customized Plane front-ends (web + space) and pushes them to GHCR
+# for ArgoCD (ever-co/k8s-gitops apps gauzy-pm-prod / gauzy-pm-stage) to deploy.
 #
-# NOTE (branch mapping): this fork tracks upstream makeplane/plane on `preview`
-# (default branch, carries all Ever customizations) — so `preview` is the deploy
-# branch and maps to the `:prod` tag. Backend = the Gauzy-integrated proxy
-# (ever-co/ever-gauzy-plugins-plane) at https://api.gauzy.co/api/plane, baked in
-# at BUILD time (Vite has no runtime env injection). TOPOLOGY=subdomains (space
-# on pm-space.gauzy.co).
+# BRANCH MODEL: this fork tracks upstream makeplane/plane on ONE branch, `preview`
+# (default; carries all Ever customizations). It has no per-env branches, so instead
+# of "branch -> env tag" this workflow builds BOTH env images from `preview`. The
+# ONLY per-env difference is the baked backend URL (Vite has no runtime env
+# injection), so each matrix entry declares its own image tag + build args:
+#   :prod  -> api.gauzy.co       tenant b545069e-... -> pm.gauzy.co       / pm-space.gauzy.co
+#   :stage -> apistage.gauzy.co  tenant 6383f9d1-... -> pmstage.gauzy.co  / pmstage-space.gauzy.co
+# (+ an immutable :sha-<gitsha> on every image for pinning/rollback.)
 #
 # MODE=custom (tenant UUID in the path): pre-auth bootstrap routes (auth/email-check,
-# login) need the tenant's API key pair, which the proxy resolves from the DB via the
-# path tenant. In shared mode (no tenant in path) getDefaultProxyConfig() has empty
+# login) need the tenant's API key pair, which the proxy resolves from the Gauzy DB via
+# the path tenant. In shared mode (no tenant in path) getDefaultProxyConfig() has empty
 # keys -> email-check 401s -> every login degrades to MAGIC_CODE (the historic
-# pm.gauzy.co login bug). The UUID is routing input, not a credential (see
-# ever-gauzy-plugins-plane docs/shared-multi-tenant-plane-sso.md); the session JWT
-# stays authoritative for tenant after login.
+# pm.gauzy.co login bug; fixed for shared mode in ever-gauzy PR #9810). The UUID is
+# routing input, not a credential (ever-gauzy-plugins-plane docs/shared-multi-tenant-plane-sso.md);
+# the session JWT stays authoritative for the tenant after login.
 
 on:
   push:
@@ -38,7 +40,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # ── prod (pm.gauzy.co) ────────────────────────────────────────────
           - image: plane-web
+            tag: prod
             dockerfile: apps/web/Dockerfile.web
             build_args: |
               VITE_API_BASE_URL=https://api.gauzy.co/api/plane/b545069e-48c8-44a2-bcb4-5699fd2013be
@@ -49,9 +53,28 @@ jobs:
               VITE_LIVE_BASE_URL=
               VITE_LIVE_BASE_PATH=/live
           - image: plane-space
+            tag: prod
             dockerfile: apps/space/Dockerfile.space
             build_args: |
               VITE_API_BASE_URL=https://api.gauzy.co/api/plane/b545069e-48c8-44a2-bcb4-5699fd2013be
+              VITE_SPACE_BASE_PATH=/spaces
+          # ── stage (pmstage.gauzy.co) ──────────────────────────────────────
+          - image: plane-web
+            tag: stage
+            dockerfile: apps/web/Dockerfile.web
+            build_args: |
+              VITE_API_BASE_URL=https://apistage.gauzy.co/api/plane/6383f9d1-25a4-4816-95a7-1faffa503c53
+              VITE_ADMIN_BASE_URL=
+              VITE_ADMIN_BASE_PATH=/god-mode
+              VITE_SPACE_BASE_URL=https://pmstage-space.gauzy.co
+              VITE_SPACE_BASE_PATH=/spaces
+              VITE_LIVE_BASE_URL=
+              VITE_LIVE_BASE_PATH=/live
+          - image: plane-space
+            tag: stage
+            dockerfile: apps/space/Dockerfile.space
+            build_args: |
+              VITE_API_BASE_URL=https://apistage.gauzy.co/api/plane/6383f9d1-25a4-4816-95a7-1faffa503c53
               VITE_SPACE_BASE_PATH=/spaces
     steps:
       - uses: actions/checkout@v4
@@ -64,24 +87,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: env tag
-        id: t
-        run: |
-          case "${GITHUB_REF_NAME}" in
-            develop) echo "tag=dev"  >> "$GITHUB_OUTPUT" ;;
-            stage)   echo "tag=stage">> "$GITHUB_OUTPUT" ;;
-            preview|main|master) echo "tag=prod" >> "$GITHUB_OUTPUT" ;;
-            *) echo "tag=${GITHUB_REF_NAME//\//-}" >> "$GITHUB_OUTPUT" ;;
-          esac
-
       - uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ matrix.dockerfile }}
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ steps.t.outputs.tag }}
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:sha-${{ github.sha }}
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache,mode=max
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ matrix.tag }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:sha-${{ github.sha }}-${{ matrix.tag }}
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache-${{ matrix.tag }}
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache-${{ matrix.tag }},mode=max
           build-args: ${{ matrix.build_args }}
