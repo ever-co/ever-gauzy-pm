@@ -1,27 +1,27 @@
 {
-  "name": "Plane",
-  "short_name": "Plane",
+  "theme_color": "#FFFFFF", 
+  "name": "Ever Gauzy PM", 
+  "short_name": "Ever Gauzy PM", 
   "icons": [
     {
-      "src": "/icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
+      "src": "/icons/icon-192x192.png", 
+      "type": "image/png", 
+      "purpose": "any maskable", 
+      "sizes": "192x192"
+    }, 
     {
-      "src": "/icons/icon-348x348.png",
-      "sizes": "348x348",
-      "type": "image/png"
-    },
+      "src": "/icons/icon-348x348.png", 
+      "type": "image/png", 
+      "sizes": "348x348"
+    }, 
     {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "/icons/icon-512x512.png", 
+      "type": "image/png", 
+      "sizes": "512x512"
     }
-  ],
-  "theme_color": "#FFFFFF",
-  "background_color": "#FFFFFF",
-  "start_url": "/",
-  "display": "standalone",
+  ], 
+  "start_url": "/", 
+  "background_color": "#FFFFFF", 
+  "display": "standalone", 
   "orientation": "portrait"
 }
