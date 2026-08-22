@@ -67,8 +67,21 @@ COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
 
+# ── Ever customization (keep on upstream merges): optional Verdaccio npm cache.
+# CI passes VERDACCIO_REGISTRY (LAN cache VIP) as a build-arg; when it is set AND
+# reachable within ~3s the fetch routes through it, otherwise we warn and fall
+# back to the public registry. No token or secret is written into any layer.
+ARG VERDACCIO_REGISTRY=""
 # Fetch dependencies to cache store, then install offline with dev deps
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm fetch --store-dir=/pnpm/store
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    if [ -n "$VERDACCIO_REGISTRY" ] && wget -q -T 3 -O /dev/null "$VERDACCIO_REGISTRY" 2>/dev/null; then \
+      echo "Verdaccio reachable -> using $VERDACCIO_REGISTRY"; \
+      printf '\nregistry=%s\n' "$VERDACCIO_REGISTRY" >> .npmrc; \
+    elif [ -n "$VERDACCIO_REGISTRY" ]; then \
+      echo "WARNING: Verdaccio $VERDACCIO_REGISTRY unreachable -> using the public registry"; \
+    fi \
+    && pnpm fetch --store-dir=/pnpm/store
+# ── end Ever customization ──
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store CI=true pnpm install --offline --frozen-lockfile --store-dir=/pnpm/store --prod=false
 
 # Build only the space package

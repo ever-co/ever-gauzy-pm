@@ -97,4 +97,10 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:sha-${{ github.sha }}-${{ matrix.tag }}
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache-${{ matrix.tag }}
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache-${{ matrix.tag }},mode=max
-          build-args: ${{ matrix.build_args }}
+          # VERDACCIO_REGISTRY: optional LAN npm cache. The Dockerfiles probe it
+          # (3s) inside the build and fall back to the public registry when it is
+          # unreachable (e.g. on a GitHub-hosted fallback runner), so passing it
+          # unconditionally is safe. No secret - it is a plain LAN URL.
+          build-args: |
+            VERDACCIO_REGISTRY=${{ vars.VERDACCIO_REGISTRY }}
+            ${{ matrix.build_args }}
