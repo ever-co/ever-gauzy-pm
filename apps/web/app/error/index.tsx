@@ -4,6 +4,7 @@
  * See the LICENSE file for details.
  */
 
+import { useEffect } from "react";
 // hooks
 import { useAppRouter } from "@/hooks/use-app-router";
 // layouts
@@ -17,9 +18,14 @@ export function CustomErrorComponent({ error }: { error: unknown }) {
   const handleGoHome = () => router.push("/");
   const handleReload = () => window.location.reload();
 
+  // ever-gauzy fork: keep the crash visible in the console in production too
+  useEffect(() => {
+    console.error("[Ever Gauzy PM] Unhandled error", error);
+  }, [error]);
+
   if (import.meta.env.DEV) {
     return <DevErrorComponent error={error} onGoHome={handleGoHome} onReload={handleReload} />;
   }
 
-  return <ProdErrorComponent onGoHome={handleGoHome} />;
+  return <ProdErrorComponent error={error} onGoHome={handleGoHome} />;
 }

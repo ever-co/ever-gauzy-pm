@@ -18,14 +18,19 @@ function ErrorPage() {
         <div className="space-y-2">
           <h3 className="text-16 font-semibold">Yikes! That doesn{"'"}t look good.</h3>
           <p className="mx-auto text-13 text-secondary md:w-1/2">
-            That crashed Plane, pun intended. No worries, though. Our engineers have been notified. If you have more
-            details, please write to{" "}
-            <a href="mailto:support@plane.so" className="text-accent-primary">
-              support@plane.so
+            Ever Gauzy PM hit an unexpected error. No worries, though. Our engineers have been notified. If you have
+            more details, please write to{" "}
+            <a href="mailto:gauzy@ever.co" className="text-accent-primary">
+              gauzy@ever.co
             </a>{" "}
-            or on our{" "}
-            <a href="https://forum.plane.so" target="_blank" className="text-accent-primary" rel="noopener noreferrer">
-              Forum
+            or check our{" "}
+            <a
+              href="https://status.gauzy.co/"
+              target="_blank"
+              className="text-accent-primary"
+              rel="noopener noreferrer"
+            >
+              Status Page
             </a>
             .
           </p>

@@ -168,7 +168,8 @@ export const AuthPasswordForm = observer(function AuthPasswordForm(props: Props)
         }}
       >
         <input type="hidden" name="csrfmiddlewaretoken" />
-        <input type="hidden" value={passwordFormData.email} name="email" />
+        {/* ever-gauzy fork: always submit the email confirmed in the email step — a password manager may rewrite the visible field */}
+        <input type="hidden" value={email} name="email" />
         {nextPath && <input type="hidden" value={nextPath} name="next_path" />}
         <div className="space-y-1">
           <label htmlFor="email" className="text-13 font-medium text-tertiary">
@@ -179,13 +180,13 @@ export const AuthPasswordForm = observer(function AuthPasswordForm(props: Props)
               id="email"
               name="email"
               type="email"
-              value={passwordFormData.email}
-              onChange={(e) => handleFormChange("email", e.target.value)}
+              value={email}
+              readOnly
               placeholder={t("auth.common.email.placeholder")}
               className={`h-10 w-full border-0 disable-autofill-style placeholder:text-placeholder`}
               disabled
             />
-            {passwordFormData.email.length > 0 && (
+            {email.length > 0 && (
               <button
                 type="button"
                 className="absolute right-3 size-5"
