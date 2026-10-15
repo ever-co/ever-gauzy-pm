@@ -91,8 +91,9 @@ export function AuthUniqueCodeForm(props: TAuthUniqueCodeForm) {
         setIsSubmitting(false);
       }}
     >
-      <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
-      <input type="hidden" value={uniqueCodeFormData.email} name="email" />
+      <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken ?? ""} />
+      {/* ever-gauzy fork: always submit the email confirmed in the email step — a password manager may rewrite the visible field */}
+      <input type="hidden" value={email} name="email" />
       {nextPath && <input type="hidden" value={nextPath} name="next_path" />}
       <div className="space-y-1">
         <label htmlFor="email" className="text-13 font-medium text-tertiary">
@@ -103,14 +104,14 @@ export function AuthUniqueCodeForm(props: TAuthUniqueCodeForm) {
             id="email"
             name="email"
             type="email"
-            value={uniqueCodeFormData.email}
-            onChange={(e) => handleFormChange("email", e.target.value)}
+            value={email}
+            readOnly
             placeholder={t("auth.common.email.placeholder")}
             className="h-10 w-full border-0 disable-autofill-style placeholder:text-placeholder"
             autoComplete="off"
             disabled
           />
-          {uniqueCodeFormData.email.length > 0 && (
+          {email.length > 0 && (
             <button
               type="button"
               className="absolute right-3 grid size-5 place-items-center"

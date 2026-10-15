@@ -41,12 +41,7 @@ export function AuthFooter() {
           here
         </a>
         . Ever Gauzy PM is not affiliated with, sponsored by, or endorsed by{" "}
-        <a
-          href="https://plane.so"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline hover:cursor-pointer"
-        >
+        <a href="https://plane.so" target="_blank" rel="noopener noreferrer" className="underline hover:cursor-pointer">
           Plane
         </a>
         .

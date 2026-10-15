@@ -20,6 +20,7 @@ import { cn } from "@plane/utils";
 // assets
 import WorkSpaceNotAvailable from "@/app/assets/workspace/workspace-not-available.png?url";
 // components
+import { NotAnEmployee } from "@/components/auth-screens/workspace/not-an-employee";
 import { LogoSpinner } from "@/components/common/logo-spinner";
 // constants
 import {
@@ -40,6 +41,8 @@ import { useProjectState } from "@/hooks/store/use-project-state";
 import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// helpers
+import { isNotAnEmployeeError } from "@/helpers/authentication.helper";
 
 interface IWorkspaceAuthWrapper {
   children: ReactNode;
@@ -73,7 +76,7 @@ export const WorkspaceAuthWrapper = observer(function WorkspaceAuthWrapper(props
   const currentWorkspaceInfo = workspaceSlug && workspaceInfoBySlug(workspaceSlug.toString());
 
   // fetching user workspace information
-  useSWR(
+  const { error: workspaceMemberMeError } = useSWR(
     workspaceSlug && currentWorkspace ? WORKSPACE_MEMBER_ME_INFORMATION(workspaceSlug.toString()) : null,
     workspaceSlug && currentWorkspace ? () => fetchUserWorkspaceInfo(workspaceSlug.toString()) : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
@@ -200,6 +203,11 @@ export const WorkspaceAuthWrapper = observer(function WorkspaceAuthWrapper(props
         </div>
       </div>
     );
+  }
+
+  // ever-gauzy fork: a Gauzy user without an employee profile cannot be a workspace member
+  if (currentWorkspaceInfo === undefined && isNotAnEmployeeError(workspaceMemberMeError)) {
+    return <NotAnEmployee email={currentUser?.email} onSignOut={handleSignOut} />;
   }
 
   // while user does not have access to view that workspace

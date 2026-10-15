@@ -46,6 +46,8 @@ export enum EAuthenticationErrorCodes {
   BOT_USER_LOGIN_FORBIDDEN = "5017",
   PASSWORD_LOGIN_DISABLED = "5018",
   USER_ACCOUNT_DEACTIVATED = "5019",
+  // ever-gauzy fork: the Gauzy user has no employee profile; only employees may use Ever Gauzy PM
+  USER_NOT_EMPLOYEE = "5990",
   // Password strength
   INVALID_PASSWORD = "5020",
   PASSWORD_TOO_WEAK = "5021",
@@ -141,6 +143,11 @@ const errorCodeMessages: {
   [EAuthenticationErrorCodes.USER_ACCOUNT_DEACTIVATED]: {
     title: `User account deactivated`,
     message: () => `User account deactivated. Please contact ${SUPPORT_EMAIL ? SUPPORT_EMAIL : "administrator"}.`,
+  },
+  [EAuthenticationErrorCodes.USER_NOT_EMPLOYEE]: {
+    title: `Employees only`,
+    message: () =>
+      `Only employees can sign in to Ever Gauzy PM. Your Gauzy user is not an employee of this organization — ask your Gauzy administrator to add you as an employee, then sign in again.`,
   },
   [EAuthenticationErrorCodes.BOT_USER_LOGIN_FORBIDDEN]: {
     title: `Sign in not allowed`,
@@ -377,6 +384,19 @@ const errorCodeMessages: {
   },
 };
 
+/**
+ * ever-gauzy fork: whether a failed `workspace-members/me` response means the signed-in Gauzy user has no
+ * employee profile. The Gauzy Plane proxy (>= 0.1.8) answers 403 with `error_code: "USER_NOT_EMPLOYEE"`.
+ * Older proxies (<= 0.1.7) fail the same check with a 400 "Failed to find or create new view properties",
+ * which only happens when the session carries no employee.
+ */
+export const isNotAnEmployeeError = (error: unknown): boolean => {
+  const response = error as { status?: number; data?: { error_code?: string; message?: string } } | undefined;
+  const errorCode = response?.data?.error_code;
+  if (errorCode === "USER_NOT_EMPLOYEE" || errorCode === EAuthenticationErrorCodes.USER_NOT_EMPLOYEE) return true;
+  return response?.status === 400 && response?.data?.message === "Failed to find or create new view properties";
+};
+
 export const authErrorHandler = (errorCode: EAuthenticationErrorCodes, email?: string): TAuthErrorInfo | undefined => {
   const bannerAlertErrorCodes = [
     EAuthenticationErrorCodes.INSTANCE_NOT_CONFIGURED,
@@ -387,6 +407,7 @@ export const authErrorHandler = (errorCode: EAuthenticationErrorCodes, email?: s
     EAuthenticationErrorCodes.PASSWORD_LOGIN_DISABLED,
     EAuthenticationErrorCodes.BOT_USER_LOGIN_FORBIDDEN,
     EAuthenticationErrorCodes.USER_ACCOUNT_DEACTIVATED,
+    EAuthenticationErrorCodes.USER_NOT_EMPLOYEE,
     EAuthenticationErrorCodes.INVALID_PASSWORD,
     EAuthenticationErrorCodes.SMTP_NOT_CONFIGURED,
     EAuthenticationErrorCodes.USER_ALREADY_EXIST,

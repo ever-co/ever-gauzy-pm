@@ -36,12 +36,21 @@ async function handleSsoHandoff(): Promise<void> {
   const ssoToken = hashParams.get("sso") ?? url.searchParams.get("sso");
   if (!ssoToken) return;
   try {
-    await fetch(`${API_BASE_URL}/auth/sso-exchange/`, {
+    const response = await fetch(`${API_BASE_URL}/auth/sso-exchange/`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: ssoToken }),
     });
+    // A Gauzy user without an employee profile is refused (403 USER_NOT_EMPLOYEE): land on the sign-in
+    // screen with that error code so it explains why, instead of a silent bounce.
+    if (response.status === 403) {
+      const body = (await response.json().catch(() => undefined)) as { error_code?: string } | undefined;
+      if (body?.error_code === "USER_NOT_EMPLOYEE") {
+        url.pathname = "/";
+        url.searchParams.set("error_code", "5990");
+      }
+    }
   } catch {
     // ignore — fall through to normal (unauthenticated) boot
   }

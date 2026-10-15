@@ -13,35 +13,51 @@ import maintenanceModeLightModeImage from "@/app/assets/instance/maintenance-mod
 // layouts
 import DefaultLayout from "@/layouts/default-layout";
 
+// ever-gauzy fork: Ever Gauzy PM's own support, status page and X account (not Plane's)
 const linkMap = [
   {
     key: "mail_to",
     label: "Contact Support",
-    value: "mailto:support@plane.so",
+    value: "mailto:gauzy@ever.co",
   },
   {
     key: "status",
     label: "Status Page",
-    value: "https://status.plane.so/",
+    value: "https://status.gauzy.co/",
   },
   {
     key: "twitter_handle",
-    label: "@planepowers",
-    value: "https://x.com/planepowers",
+    label: "@everplatform",
+    value: "https://x.com/everplatform",
   },
 ];
 
 // Production Error Component
 interface ProdErrorComponentProps {
+  error?: unknown;
   onGoHome: () => void;
 }
 
-export function ProdErrorComponent({ onGoHome }: ProdErrorComponentProps) {
+// ever-gauzy fork: a short, reportable description of the error (message + top of the stack)
+const describeError = (error: unknown): string | undefined => {
+  if (error instanceof Error) {
+    const stack = (error.stack ?? "").split("\n").slice(1, 6).join("\n");
+    return stack ? `${error.name}: ${error.message}\n${stack}` : `${error.name}: ${error.message}`;
+  }
+  if (error && typeof error === "object" && "status" in error) {
+    const { status, statusText } = error as { status?: number; statusText?: string };
+    return `${status ?? ""} ${statusText ?? ""}`.trim() || undefined;
+  }
+  return error ? String(error) : undefined;
+};
+
+export function ProdErrorComponent({ error, onGoHome }: ProdErrorComponentProps) {
   // hooks
   const { resolvedTheme } = useTheme();
 
   // derived values
   const maintenanceModeImage = resolvedTheme === "dark" ? maintenanceModeDarkModeImage : maintenanceModeLightModeImage;
+  const errorDetails = describeError(error);
 
   return (
     <DefaultLayout>
@@ -78,6 +94,15 @@ export function ProdErrorComponent({ onGoHome }: ProdErrorComponentProps) {
               </div>
             ))}
           </div>
+
+          {errorDetails && (
+            <details className="text-left text-12 text-tertiary">
+              <summary className="cursor-pointer">Error details (include them when you contact support)</summary>
+              <pre className="mt-2 max-h-48 overflow-auto rounded-md bg-layer-1 p-2 break-words whitespace-pre-wrap">
+                {errorDetails}
+              </pre>
+            </details>
+          )}
 
           <div className="flex items-center justify-start gap-6">
             <Button variant="primary" size="lg" onClick={onGoHome}>

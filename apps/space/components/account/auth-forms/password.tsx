@@ -119,7 +119,8 @@ export const AuthPasswordForm = observer(function AuthPasswordForm(props: Props)
       onError={() => setIsSubmitting(false)}
     >
       <input type="hidden" name="csrfmiddlewaretoken" />
-      <input type="hidden" value={passwordFormData.email} name="email" />
+      {/* ever-gauzy fork: always submit the email confirmed in the email step — a password manager may rewrite the visible field */}
+      <input type="hidden" value={email} name="email" />
       <input type="hidden" value={nextPath} name="next_path" />
       <div className="space-y-1">
         <label className="text-13 font-medium text-tertiary" htmlFor="email">
@@ -130,13 +131,13 @@ export const AuthPasswordForm = observer(function AuthPasswordForm(props: Props)
             id="email"
             name="email"
             type="email"
-            value={passwordFormData.email}
-            onChange={(e) => handleFormChange("email", e.target.value)}
+            value={email}
+            readOnly
             placeholder="name@company.com"
             className={`h-10 w-full border-0 disable-autofill-style placeholder:text-placeholder`}
             disabled
           />
-          {passwordFormData.email.length > 0 && (
+          {email.length > 0 && (
             <XCircle
               className="absolute right-3 h-5 w-5 stroke-placeholder hover:cursor-pointer"
               onClick={handleEmailClear}
