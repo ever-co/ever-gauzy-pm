@@ -44,6 +44,8 @@ export enum EAuthenticationErrorCodes {
   // Sign In
   BOT_USER_LOGIN_FORBIDDEN = "5017",
   USER_ACCOUNT_DEACTIVATED = "5019",
+  // ever-gauzy fork: the Gauzy user has no employee profile; only employees may use Ever Gauzy PM
+  USER_NOT_EMPLOYEE = "5990",
   USER_DOES_NOT_EXIST = "5060",
   AUTHENTICATION_FAILED_SIGN_IN = "5065",
   REQUIRED_EMAIL_PASSWORD_SIGN_IN = "5070",
@@ -168,6 +170,11 @@ const errorCodeMessages: {
   [EAuthenticationErrorCodes.USER_ACCOUNT_DEACTIVATED]: {
     title: `User account deactivated`,
     message: () => `User account deactivated. Please contact ${SUPPORT_EMAIL ? SUPPORT_EMAIL : "administrator"}.`,
+  },
+  [EAuthenticationErrorCodes.USER_NOT_EMPLOYEE]: {
+    title: `Employees only`,
+    message: () =>
+      `Only employees can sign in to Ever Gauzy PM. Your Gauzy user is not an employee of this organization — ask your Gauzy administrator to add you as an employee, then sign in again.`,
   },
 
   [EAuthenticationErrorCodes.USER_DOES_NOT_EXIST]: {
@@ -391,6 +398,7 @@ export const authErrorHandler = (errorCode: EAuthenticationErrorCodes, email?: s
     EAuthenticationErrorCodes.ADMIN_USER_DOES_NOT_EXIST,
     EAuthenticationErrorCodes.BOT_USER_LOGIN_FORBIDDEN,
     EAuthenticationErrorCodes.USER_ACCOUNT_DEACTIVATED,
+    EAuthenticationErrorCodes.USER_NOT_EMPLOYEE,
   ];
 
   if (bannerAlertErrorCodes.includes(errorCode))
