@@ -8,6 +8,7 @@
 import { useTranslation } from "@plane/i18n";
 // hooks
 import type { IUser } from "@plane/types";
+import { toValidTimeZone } from "@/helpers/time-zone.helper";
 import { useCurrentTime } from "@/hooks/use-current-time";
 // types
 
@@ -37,7 +38,7 @@ export function UserGreetingsView(props: IUserGreetingsView) {
   }).format(currentTime);
 
   const timeString = new Intl.DateTimeFormat("en-US", {
-    timeZone: user?.user_timezone,
+    timeZone: toValidTimeZone(user?.user_timezone),
     hour12: false, // Use 24-hour format
     hour: "2-digit",
     minute: "2-digit",
