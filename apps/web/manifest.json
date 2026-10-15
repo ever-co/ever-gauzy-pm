@@ -1,32 +1,32 @@
 {
-  "theme_color": "#3579f6", 
-  "name": "Ever Gauzy PM", 
-  "short_name": "Ever Gauzy PM", 
+  "theme_color": "#3579f6",
+  "name": "Ever Gauzy PM",
+  "short_name": "Ever Gauzy PM",
   "icons": [
     {
-      "src": "/icon-192x192.png", 
-      "type": "image/png", 
+      "src": "/icon-192x192.png",
+      "type": "image/png",
       "sizes": "192x192"
-    }, 
+    },
     {
-      "src": "/icon-256x256.png", 
-      "type": "image/png", 
+      "src": "/icon-256x256.png",
+      "type": "image/png",
       "sizes": "256x256"
-    }, 
+    },
     {
-      "src": "/icon-384x384.png", 
-      "type": "image/png", 
+      "src": "/icon-384x384.png",
+      "type": "image/png",
       "sizes": "384x384"
-    }, 
+    },
     {
-      "src": "/icon-512x512.png", 
-      "type": "image/png", 
+      "src": "/icon-512x512.png",
+      "type": "image/png",
       "sizes": "512x512"
     }
-  ], 
-  "start_url": "/", 
-  "scope": "/", 
-  "background_color": "#ffffff", 
-  "display": "standalone", 
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "background_color": "#ffffff",
+  "display": "standalone",
   "description": "Ever Gauzy PM helps you plan your issues, cycles, and product modules."
 }

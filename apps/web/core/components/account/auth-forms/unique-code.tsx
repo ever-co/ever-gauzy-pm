@@ -91,7 +91,7 @@ export function AuthUniqueCodeForm(props: TAuthUniqueCodeForm) {
         setIsSubmitting(false);
       }}
     >
-      <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
+      <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken ?? ""} />
       {/* ever-gauzy fork: always submit the email confirmed in the email step — a password manager may rewrite the visible field */}
       <input type="hidden" value={email} name="email" />
       {nextPath && <input type="hidden" value={nextPath} name="next_path" />}
