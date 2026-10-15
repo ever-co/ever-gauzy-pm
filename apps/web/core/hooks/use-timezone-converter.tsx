@@ -6,13 +6,14 @@
 
 import { useCallback } from "react";
 import { format } from "date-fns";
+import { toValidTimeZone } from "@/helpers/time-zone.helper";
 import { useProject } from "@/hooks/store/use-project";
 import { useUser } from "@/hooks/store/user";
 
 export const useTimeZoneConverter = (projectId: string) => {
   const { data: user } = useUser();
   const { getProjectById } = useProject();
-  const userTimezone = user?.user_timezone;
+  const userTimezone = toValidTimeZone(user?.user_timezone);
   const projectTimezone = getProjectById(projectId)?.timezone;
 
   /**

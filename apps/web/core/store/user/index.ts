@@ -23,6 +23,8 @@ import { ProfileStore } from "@/store/user/profile.store";
 // local imports
 import type { IUserSettingsStore } from "./settings.store";
 import { UserSettingsStore } from "./settings.store";
+// helpers
+import { withValidTimeZone } from "@/helpers/time-zone.helper";
 
 type TUserErrorStatus = {
   status: string;
@@ -115,7 +117,8 @@ export class UserStore implements IUserStore {
         this.isLoading = true;
         this.error = undefined;
       });
-      const user = await this.userService.currentUser();
+      // ever-gauzy fork: Gauzy time zones arrive as labels ("Europe/Paris (UTC +01:00)"); normalize to IANA
+      const user = withValidTimeZone(await this.userService.currentUser());
       if (user && user?.id) {
         await Promise.all([
           this.userProfile.fetchUserProfile(),
@@ -161,7 +164,7 @@ export class UserStore implements IUserStore {
           if (this.data) set(this.data, userKey, data[userKey]);
         });
       }
-      const user = await this.userService.updateUser(data);
+      const user = withValidTimeZone(await this.userService.updateUser(data));
       if (user && this.data) {
         runInAction(() => {
           Object.keys(user).forEach((key: string) => {

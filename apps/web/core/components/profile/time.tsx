@@ -4,6 +4,8 @@
  * See the LICENSE file for details.
  */
 
+// helpers
+import { toValidTimeZone } from "@/helpers/time-zone.helper";
 // hooks
 import { useCurrentTime } from "@/hooks/use-current-time";
 
@@ -18,7 +20,7 @@ export function ProfileSidebarTime(props: Props) {
 
   // Create a date object for the current time in the specified timezone
   const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: timeZone,
+    timeZone: toValidTimeZone(timeZone),
     hour12: false, // Use 24-hour format
     hour: "2-digit",
     minute: "2-digit",
