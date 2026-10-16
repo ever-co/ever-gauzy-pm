@@ -6,7 +6,7 @@
 
 // ever-gauzy fork: loading indicator shows the Ever Gauzy PM logo (theme-aware
 // via currentColor) instead of the upstream Plane logo GIFs.
-import { PlaneLockup } from "@plane/propel/icons";
+import { PlaneLockup } from "@plane/blocks/icons";
 
 export function LogoSpinner() {
   return (

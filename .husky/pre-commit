@@ -1,1 +1,7 @@
+# ever-gauzy fork: a merge of upstream makeplane/plane stages thousands of upstream files. Linting them here with
+# `oxlint --fix --deny-warnings` fails on upstream's pre-existing warnings (and `--fix` would rewrite upstream code),
+# so merge commits skip lint-staged. The PR's CI still runs check:lint, check:format and check:types on them.
+if [ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ]; then
+  exit 0
+fi
 pnpm lint-staged
