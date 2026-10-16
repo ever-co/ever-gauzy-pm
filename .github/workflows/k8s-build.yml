@@ -1,6 +1,7 @@
 name: k8s-build
 
-# Builds the Ever-customized Plane front-ends (web + space) and pushes them to GHCR
+# Builds the Ever-customized Plane front-ends (web + space) and the Pages realtime server (live), and pushes them
+# to GHCR
 # for ArgoCD (ever-co/k8s-gitops apps gauzy-pm-prod / gauzy-pm-stage) to deploy.
 #
 # BRANCH MODEL: this fork tracks upstream makeplane/plane on ONE branch, `preview`
@@ -10,6 +11,11 @@ name: k8s-build
 # injection), so each matrix entry declares its own image tag + build args:
 #   :prod  -> api.gauzy.co       tenant b545069e-... -> pm.gauzy.co       / pm-space.gauzy.co
 #   :stage -> apistage.gauzy.co  tenant 6383f9d1-... -> pmstage.gauzy.co  / pmstage-space.gauzy.co
+# LIVE: the Pages realtime server (Hocuspocus WebSocket) is served on the API host, at
+#   https://api.gauzy.co/plane-live (stage: apistage.gauzy.co), not on pm.gauzy.co: the proxy's session cookie is
+#   host-only on the API host and the browser sends it with the WebSocket only there. The live image has no baked
+#   URLs (all runtime env, see k8s-gitops apps/gauzy-pm-*/deploy-live.json); it is tagged per env so ArgoCD Image
+#   Updater can roll each env from its own tag.
 # (+ an immutable :sha-<gitsha> on every image for pinning/rollback.)
 #
 # MODE=custom (tenant UUID in the path): pre-auth bootstrap routes (auth/email-check,
@@ -50,14 +56,18 @@ jobs:
               VITE_ADMIN_BASE_PATH=/god-mode
               VITE_SPACE_BASE_URL=https://pm-space.gauzy.co
               VITE_SPACE_BASE_PATH=/spaces
-              VITE_LIVE_BASE_URL=
-              VITE_LIVE_BASE_PATH=/live
+              VITE_LIVE_BASE_URL=https://api.gauzy.co
+              VITE_LIVE_BASE_PATH=/plane-live
           - image: plane-space
             tag: prod
             dockerfile: apps/space/Dockerfile.space
             build_args: |
               VITE_API_BASE_URL=https://api.gauzy.co/api/plane/b545069e-48c8-44a2-bcb4-5699fd2013be
               VITE_SPACE_BASE_PATH=/spaces
+          - image: plane-live
+            tag: prod
+            dockerfile: apps/live/Dockerfile.live
+            build_args: ""
           # ── stage (pmstage.gauzy.co) ──────────────────────────────────────
           - image: plane-web
             tag: stage
@@ -68,14 +78,18 @@ jobs:
               VITE_ADMIN_BASE_PATH=/god-mode
               VITE_SPACE_BASE_URL=https://pmstage-space.gauzy.co
               VITE_SPACE_BASE_PATH=/spaces
-              VITE_LIVE_BASE_URL=
-              VITE_LIVE_BASE_PATH=/live
+              VITE_LIVE_BASE_URL=https://apistage.gauzy.co
+              VITE_LIVE_BASE_PATH=/plane-live
           - image: plane-space
             tag: stage
             dockerfile: apps/space/Dockerfile.space
             build_args: |
               VITE_API_BASE_URL=https://apistage.gauzy.co/api/plane/6383f9d1-25a4-4816-95a7-1faffa503c53
               VITE_SPACE_BASE_PATH=/spaces
+          - image: plane-live
+            tag: stage
+            dockerfile: apps/live/Dockerfile.live
+            build_args: ""
     steps:
       - uses: actions/checkout@v4
 

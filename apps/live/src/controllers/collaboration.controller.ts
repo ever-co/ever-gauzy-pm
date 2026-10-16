@@ -10,11 +10,16 @@ import type WebSocket from "ws";
 // plane imports
 import { Controller, WebSocket as WSDecorator } from "@plane/decorators";
 import { logger } from "@plane/logger";
+// env
+import { env } from "@/env";
+// lib
+import { isOriginAllowed, parseAllowedOrigins } from "@/lib/origin";
 
 @Controller("/collaboration")
 export class CollaborationController {
   [key: string]: unknown;
   private readonly hocusPocusServer: Hocuspocus;
+  private readonly allowedOrigins = parseAllowedOrigins(env.CORS_ALLOWED_ORIGINS);
 
   constructor(hocusPocusServer: Hocuspocus) {
     this.hocusPocusServer = hocusPocusServer;
@@ -22,6 +27,14 @@ export class CollaborationController {
 
   @WSDecorator("/")
   handleConnection(ws: WebSocket, req: Request) {
+    // ever-gauzy fork: browsers send the session cookie with any same-site WebSocket, so only accept connections
+    // opened by the configured web origins (no-op when CORS_ALLOWED_ORIGINS is empty)
+    if (!isOriginAllowed(req.headers.origin, this.allowedOrigins)) {
+      logger.warn(`COLLABORATION_CONTROLLER: rejected WebSocket from origin ${req.headers.origin ?? "(none)"}`);
+      ws.close(1008, "Origin not allowed");
+      return;
+    }
+
     try {
       // Initialize the connection with Hocuspocus
       this.hocusPocusServer.handleConnection(ws, req);
