@@ -1,7 +1,11 @@
 {
-  "theme_color": "#3f76ff",
   "name": "Ever Gauzy PM Space",
   "short_name": "Ever Gauzy PM Space",
+  "description": "Ever Gauzy PM helps you plan your work items, cycles, and product modules.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "/favicon/android-chrome-192x192.png",
@@ -13,9 +17,5 @@
       "type": "image/png",
       "sizes": "512x512"
     }
-  ],
-  "start_url": ".",
-  "background_color": "#f9fafb",
-  "display": "standalone",
-  "description": "Ever Gauzy PM helps you plan your work items, cycles, and product modules."
+  ]
 }
