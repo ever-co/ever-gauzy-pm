@@ -32,13 +32,14 @@ describe("isOriginAllowed", () => {
 
   it("allows a listed origin", () => {
     expect(isOriginAllowed("https://pm.gauzy.co", allowed)).toBe(true);
-    expect(isOriginAllowed("https://pm.gauzy.co/", allowed)).toBe(true);
   });
 
   it("rejects unlisted, look-alike and missing origins", () => {
     expect(isOriginAllowed("https://app.gauzy.co", allowed)).toBe(false);
     expect(isOriginAllowed("https://pm.gauzy.co.evil.example", allowed)).toBe(false);
     expect(isOriginAllowed("http://pm.gauzy.co", allowed)).toBe(false);
+    expect(isOriginAllowed("https://pm.gauzy.co/", allowed)).toBe(false);
+    expect(isOriginAllowed(`https://pm.gauzy.co${"/".repeat(50_000)}x`, allowed)).toBe(false);
     expect(isOriginAllowed(undefined, allowed)).toBe(false);
     expect(isOriginAllowed("", allowed)).toBe(false);
     expect(isOriginAllowed(["https://pm.gauzy.co"], allowed)).toBe(false);
