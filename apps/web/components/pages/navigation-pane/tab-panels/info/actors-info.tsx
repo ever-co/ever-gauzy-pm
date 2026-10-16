@@ -20,6 +20,24 @@ type Props = {
   page: TPageInstance;
 };
 
+// ever-gauzy fork: a page can have no known creator/editor; linking then went to /<workspace>/profile/null
+function ActorLink({
+  workspaceSlug,
+  userId,
+  children,
+}: {
+  workspaceSlug: string | undefined;
+  userId: string | null | undefined;
+  children: React.ReactNode;
+}) {
+  if (!workspaceSlug || !userId) return <span className="flex items-center gap-1">{children}</span>;
+  return (
+    <Link href={`/${workspaceSlug}/profile/${userId}`} className="flex items-center gap-1">
+      {children}
+    </Link>
+  );
+}
+
 export const PageNavigationPaneInfoTabActorsInfo = observer(function PageNavigationPaneInfoTabActorsInfo(props: Props) {
   const { page } = props;
   // navigation
@@ -38,7 +56,7 @@ export const PageNavigationPaneInfoTabActorsInfo = observer(function PageNavigat
       <div>
         <p className="text-11 font-medium text-tertiary">{t("page_navigation_pane.tabs.info.actors_info.edited_by")}</p>
         <div className="mt-2 flex items-center justify-between gap-2 text-13 font-medium">
-          <Link href={`/${workspaceSlug?.toString()}/profile/${page.updated_by}`} className="flex items-center gap-1">
+          <ActorLink workspaceSlug={workspaceSlug?.toString()} userId={page.updated_by}>
             <Avatar
               alt={editorInformation?.display_name}
               fallback={editorInformation?.display_name?.[0]?.toUpperCase()}
@@ -46,7 +64,7 @@ export const PageNavigationPaneInfoTabActorsInfo = observer(function PageNavigat
               size="2xs"
             />
             <span>{editorInformation?.display_name ?? t("common.deactivated_user")}</span>
-          </Link>
+          </ActorLink>
           <span className="flex-shrink-0 text-tertiary">{calculateTimeAgoShort(page.updated_at ?? "")} ago</span>
         </div>
       </div>
@@ -55,7 +73,7 @@ export const PageNavigationPaneInfoTabActorsInfo = observer(function PageNavigat
           {t("page_navigation_pane.tabs.info.actors_info.created_by")}
         </p>
         <div className="mt-2 flex items-center justify-between gap-2 text-13 font-medium">
-          <Link href={`/${workspaceSlug?.toString()}/profile/${page.created_by}`} className="flex items-center gap-1">
+          <ActorLink workspaceSlug={workspaceSlug?.toString()} userId={page.created_by}>
             <Avatar
               alt={creatorInformation?.display_name}
               fallback={creatorInformation?.display_name?.[0]?.toUpperCase()}
@@ -63,7 +81,7 @@ export const PageNavigationPaneInfoTabActorsInfo = observer(function PageNavigat
               size="2xs"
             />
             <span>{creatorInformation?.display_name ?? t("common.deactivated_user")}</span>
-          </Link>
+          </ActorLink>
           <span className="flex-shrink-0 text-tertiary">{renderFormattedDate(page.created_at)}</span>
         </div>
       </div>
