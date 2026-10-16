@@ -50,6 +50,10 @@ env:
 jobs:
   branch_build_setup:
     name: Build Setup
+    # ever-gauzy fork: upstream's image/release pipeline (Docker Hub makeplane/*, its runners and secrets). It
+    # failed on every push to this fork; our images come from k8s-build.yml. Every other job needs this one, so
+    # the whole workflow is skipped here and still runs in makeplane/plane.
+    if: ${{ github.repository == 'makeplane/plane' }}
     runs-on: ubuntu-24.04
     outputs:
       gh_branch_name: ${{ steps.set_env_variables.outputs.TARGET_BRANCH }}
