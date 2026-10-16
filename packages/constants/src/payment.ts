@@ -117,7 +117,8 @@ export const PLANE_COMMUNITY_PRODUCTS: Record<string, IPaymentProduct> = {
 /**
  * URL for the "Talk to Sales" page where users can contact sales team
  */
-export const TALK_TO_SALES_URL = "https://plane.so/talk-to-sales";
+// ever-gauzy fork: Ever Gauzy contact/pricing instead of Plane sales and Plane subscription upgrades
+export const TALK_TO_SALES_URL = "mailto:gauzy@ever.co";
 
 /**
  * Mapping of subscription types to their respective upgrade/redirection URLs based on billing frequency
@@ -133,12 +134,12 @@ export const SUBSCRIPTION_REDIRECTION_URLS: Record<EProductSubscriptionEnum, Rec
     year: TALK_TO_SALES_URL,
   },
   [EProductSubscriptionEnum.PRO]: {
-    month: "https://app.plane.so/upgrade/pro/self-hosted?plan=month",
-    year: "https://app.plane.so/upgrade/pro/self-hosted?plan=year",
+    month: "https://gauzy.co/pricing",
+    year: "https://gauzy.co/pricing",
   },
   [EProductSubscriptionEnum.BUSINESS]: {
-    month: "https://app.plane.so/upgrade/business/self-hosted?plan=month",
-    year: "https://app.plane.so/upgrade/business/self-hosted?plan=year",
+    month: "https://gauzy.co/pricing",
+    year: "https://gauzy.co/pricing",
   },
   [EProductSubscriptionEnum.ENTERPRISE]: {
     month: TALK_TO_SALES_URL,
@@ -153,7 +154,7 @@ export const SUBSCRIPTION_REDIRECTION_URLS: Record<EProductSubscriptionEnum, Rec
 export const SUBSCRIPTION_WEBPAGE_URLS: Record<EProductSubscriptionEnum, string> = {
   [EProductSubscriptionEnum.FREE]: TALK_TO_SALES_URL,
   [EProductSubscriptionEnum.ONE]: TALK_TO_SALES_URL,
-  [EProductSubscriptionEnum.PRO]: "https://plane.so/pro",
-  [EProductSubscriptionEnum.BUSINESS]: "https://plane.so/business",
-  [EProductSubscriptionEnum.ENTERPRISE]: "https://plane.so/business",
+  [EProductSubscriptionEnum.PRO]: "https://gauzy.co/pricing",
+  [EProductSubscriptionEnum.BUSINESS]: "https://gauzy.co/pricing",
+  [EProductSubscriptionEnum.ENTERPRISE]: "https://gauzy.co/pricing",
 };
