@@ -50,7 +50,9 @@ export function EverGauzyPmLogo({ width = "120", height = "24", className }: ISv
           fontStyle="italic"
           letterSpacing="-0.035em"
         >
-          <tspan x="0" y="0">gauzy</tspan>
+          <tspan x="0" y="0">
+            gauzy
+          </tspan>
         </text>
       </g>
     </svg>
