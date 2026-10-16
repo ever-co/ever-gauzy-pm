@@ -28,6 +28,9 @@ const envSchema = z.object({
   REDIS_HOST: z.string().optional(),
   REDIS_PORT: z.string().default("6379").transform(Number),
   REDIS_URL: z.string().optional(),
+  // ever-gauzy fork: key / pub-sub channel prefix, so several deployments (e.g. prod and stage) can share one
+  // Redis without receiving each other's document updates, locks or admin commands
+  REDIS_KEY_PREFIX: z.string().min(1).default("hocuspocus"),
 });
 
 const validateEnv = () => {

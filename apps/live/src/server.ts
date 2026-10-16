@@ -21,6 +21,8 @@ import { CONTROLLERS } from "@/controllers";
 import { env } from "@/env";
 // hocuspocus server
 import { HocusPocusServerManager } from "@/hocuspocus";
+// lib
+import { parseAllowedOrigins } from "@/lib/origin";
 // redis
 import { redisManager } from "@/redis";
 
@@ -69,7 +71,8 @@ export class Server {
   }
 
   private setupCors() {
-    const allowedOrigins = env.CORS_ALLOWED_ORIGINS.split(",").map((s) => s.trim());
+    // ever-gauzy fork: drop empty entries, so an unset CORS_ALLOWED_ORIGINS disables CORS instead of allowing ""
+    const allowedOrigins = parseAllowedOrigins(env.CORS_ALLOWED_ORIGINS);
     this.app.use(
       cors({
         origin: allowedOrigins.length > 0 ? allowedOrigins : false,
