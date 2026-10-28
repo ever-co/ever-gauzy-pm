@@ -9,14 +9,29 @@
 :3000 {
 	root * /usr/share/caddy/html
 
-	# Per-client-IP rate limiting for static asset requests
-	rate_limit {
+	# Hashed build output (/assets/<name>-<hash>.js|css): a name never gets other content, so browsers and
+	# Cloudflare's edge may keep it for a year without asking again. Without this, every one of the ~400
+	# chunks a page loads was revalidated and fetched through the origin.
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	# Everything else, the app shell (index.html, served for every SPA route) first: revalidate on each
+	# load, so a deploy is picked up at once.
+	@notAssets not path /assets/*
+	header @notAssets Cache-Control "no-cache"
+
+	# Per-client-IP rate limiting, except for the hashed assets above: one page load asks for ~400 of
+	# them, which a 300-per-minute limit could cut off on a cold cache.
+	rate_limit @notAssets {
 		zone static {
 			key {client_ip}
 			events 300
 			window 1m
 		}
 	}
+
+	# Compress here too: responses cross the homelab uplink before Cloudflare compresses them.
+	encode zstd gzip
 
 	# Security headers (HSTS is set at the TLS terminator)
 	header {
