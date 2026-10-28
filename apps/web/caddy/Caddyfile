@@ -9,14 +9,8 @@
 :3000 {
 	root * /usr/share/caddy/html
 
-	# Per-client-IP rate limiting for static asset requests
-	rate_limit {
-		zone static {
-			key {client_ip}
-			events 300
-			window 1m
-		}
-	}
+	# Compress here too: responses cross the homelab uplink before Cloudflare compresses them.
+	encode zstd gzip
 
 	# Security headers (HSTS is set at the TLS terminator)
 	header {
@@ -25,9 +19,36 @@
 		X-XSS-Protection "1; mode=block"
 	}
 
-	# SPA fallback
-	try_files {path} /index.html
-	file_server
+	# Hashed build output (/assets/<name>-<hash>.js|css). A file that exists never gets other content under
+	# its name, so browsers and Cloudflare's edge may keep it for a year without asking again. A missing one
+	# (an old or new chunk asked of a pod from another deploy) is a 404 that nobody stores: never the SPA
+	# shell, which would otherwise be cached as that chunk for a year.
+	handle /assets/* {
+		@exists file
+		header @exists Cache-Control "public, max-age=31536000, immutable"
+		@missing not file
+		header @missing Cache-Control "no-store"
+		file_server
+	}
+
+	# Everything else, the app shell (index.html, served for every SPA route) first: revalidate on each
+	# load, so a deploy is picked up at once.
+	handle {
+		header Cache-Control "no-cache"
+
+		# Per-client-IP rate limiting. Not for the hashed assets above: one page load asks for ~400 of
+		# them, which a 300-per-minute limit cut off on a cold cache.
+		rate_limit {
+			zone static {
+				key {client_ip}
+				events 300
+				window 1m
+			}
+		}
+
+		try_files {path} /index.html
+		file_server
+	}
 
 	# Access logs to stdout (default in Caddy)
 	log {
